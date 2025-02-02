@@ -8,7 +8,7 @@ plugins {
 	id 'groovy-base'
 }
 
-group = 'dev.nokee.commons'
+group = 'dev.gradleplugins.exemplar'
 version = '0.6'
 
 java {
