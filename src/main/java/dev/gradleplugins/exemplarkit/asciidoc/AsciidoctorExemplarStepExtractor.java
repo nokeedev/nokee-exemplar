@@ -16,33 +16,60 @@
 package dev.gradleplugins.exemplarkit.asciidoc;
 
 import dev.gradleplugins.exemplarkit.EmbeddedCommandExemplarStepExtractor;
+import dev.gradleplugins.exemplarkit.ExemplarStepExtractor;
 import dev.gradleplugins.exemplarkit.Step;
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 
-final class AsciidoctorExemplarStepExtractor implements AsciidoctorContent.Visitor {
-	private final List<Step> steps = new ArrayList<>();
+public final class AsciidoctorExemplarStepExtractor implements ExemplarStepExtractor {
+	private static final class Visitor implements AsciidoctorContent.Visitor {
+		private final List<Step> steps = new ArrayList<>();
 
-	@Override
-	public void visit(Document node) {
+		@Override
+		public void visit(Document node) {
 
-	}
-
-	@Override
-	public void visit(Block node) {
-		if (node.isBlock() && node.hasRole("terminal")) {
-			parseEmbeddedCommand(node);
 		}
+
+		@Override
+		public void visit(Block node) {
+			if (node.isBlock() && node.hasRole("terminal")) {
+				parseEmbeddedCommand(node);
+			}
+		}
+
+		private void parseEmbeddedCommand(Block block) {
+			steps.addAll(new EmbeddedCommandExemplarStepExtractor(block.getAttributes()).extract(block.getSource()));
+		}
+
+		public List<Step> get() {
+			return steps;
+		}
+	};
+
+	private final Options options;
+
+	public AsciidoctorExemplarStepExtractor() {
+		this(new Options());
 	}
 
-	private void parseEmbeddedCommand(Block block) {
-		steps.addAll(new EmbeddedCommandExemplarStepExtractor(block.getAttributes()).extract(block.getSource()));
+	public AsciidoctorExemplarStepExtractor(Options options) {
+		this.options = options;
 	}
 
-	public List<Step> get() {
-		return steps;
+	@Override
+	public List<Step> extract(String content) {
+		AsciidoctorContent adocContent = null;
+		try (Asciidoctor asciidoctor = Asciidoctor.Factory.create()) {
+			Document document = asciidoctor.load(content, options.map());
+			adocContent = new AsciidoctorContent(document);
+		}
+		Visitor visitor = new Visitor();
+		adocContent.walk(visitor);
+		return visitor.get();
 	}
 }

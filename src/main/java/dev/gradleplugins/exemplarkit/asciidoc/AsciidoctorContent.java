@@ -29,7 +29,7 @@ import static org.asciidoctor.OptionsBuilder.options;
 public final class AsciidoctorContent {
 	private final ContentNode contentNode;
 
-	private AsciidoctorContent(ContentNode contentNode) {
+	AsciidoctorContent(ContentNode contentNode) {
 		this.contentNode = contentNode;
 	}
 
