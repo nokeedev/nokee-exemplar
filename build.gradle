@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'dev.gradleplugins.exemplar'
-version = '0.6'
+version = '1.0-SNAPSHOT'
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_1_8
