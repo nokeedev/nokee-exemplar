@@ -11,6 +11,20 @@ plugins {
 group = 'dev.nokee.commons'
 version = '0.6'
 
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.named('compileTestJava', JavaCompile) {
+	javaCompiler = javaToolchains.compilerFor {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+	options.release = 17
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
 def lombokVersion = '1.18.24'
 def guavaVersion = '31.0.1-jre'
 def commonsLangVersion = '3.12.0'
