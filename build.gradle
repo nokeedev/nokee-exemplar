@@ -4,9 +4,6 @@ plugins {
 	id 'java-test-fixtures'
 	id 'antlr'
 
-	// for testing
-	id 'groovy-base'
-
 	id 'maven-publish'
 }
 
@@ -58,9 +55,8 @@ dependencies {
 	testFixturesApi "org.antlr:antlr4:${antlrVersion}"
 }
 
-//region Configure JUnit 5 with Groovy
+//region Configure JUnit 5
 dependencies {
-	testImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 	testImplementation "org.hamcrest:hamcrest:2.2"
 	testImplementation "org.mockito:mockito-core:2.28.2"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
@@ -69,6 +65,9 @@ dependencies {
 }
 tasks.named('test', Test) {
 	it.useJUnitPlatform()
+	it.javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 }
 //endregion
 
