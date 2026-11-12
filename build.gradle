@@ -4,8 +4,6 @@ plugins {
 	id 'java-test-fixtures'
 	id 'antlr'
 
-	id 'maven-publish'
-
 	id 'jvm-test-suite'
 	id 'nokeebuild.use-junit-platform-in-test-suites'
 	id 'nokeebuild.use-latest-java-lts-in-test-suites'
@@ -94,12 +92,3 @@ generateGrammarSource.configure { task ->
 }
 //endregion
 //endregion
-
-
-publishing {
-	publications {
-		java(MavenPublication) {
-			from components.java
-		}
-	}
-}
