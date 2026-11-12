@@ -1,10 +1,10 @@
-rootProject.name = 'commons-exemplar'
-
-includeBuild '../'
-
-dependencyResolutionManagement {
-	repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
-	repositories {
-		mavenCentral()
-	}
+pluginManagement {
+	apply from: 'https://raw.githubusercontent.com/nokeedev/nokeebuild-plugins/refs/heads/main/init.gradle'
 }
+
+plugins {
+	id 'nokeebuild.develocity'
+	id 'nokeebuild.repositories' // TODO: We should have repositories for plugins vs lib, this is lib project
+}
+
+rootProject.name = 'commons-exemplar'
