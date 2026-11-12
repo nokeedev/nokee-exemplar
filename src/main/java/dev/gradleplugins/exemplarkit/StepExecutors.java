@@ -15,23 +15,18 @@
  */
 package dev.gradleplugins.exemplarkit;
 
-import dev.nokee.core.exec.CommandLine;
-import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.LoggingEngine;
-import dev.nokee.core.exec.ProcessBuilderEngine;
 import lombok.val;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepExecuted;
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepFailed;
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepSkipped;
-import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemError;
-import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemOutput;
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
 
 public final class StepExecutors {
@@ -53,20 +48,14 @@ public final class StepExecutors {
 		return new StepExecutor() {
 			@Override
 			public boolean canHandle(Step step) {
-				return step.getExecutable().equals(original) && !CommandLineTool.fromPath(original).isPresent();
+				return step.getExecutable().equals(original) && !ProcessRunner.findOnPath(original).isPresent();
 			}
 
 			@Override
 			public StepExecutionResult run(StepExecutionContext context) {
-				val result = CommandLine.script(target, context.getCurrentStep().getArguments())
-					.newInvocation()
-					.workingDirectory(context.getCurrentWorkingDirectory())
-					.redirectStandardOutput(toSystemOutput())
-					.redirectErrorOutput(toSystemError())
-					.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
-					.waitFor();
+				val result = ProcessRunner.run(ProcessRunner.script(target, context.getCurrentStep().getArguments()), context.getCurrentWorkingDirectory());
 
-				return stepExecuted(result.getExitValue(), result.getOutput().getAsString());
+				return stepExecuted(result.getExitValue(), result.getOutput());
 			}
 		};
 	}
@@ -129,25 +118,19 @@ public final class StepExecutors {
 			return true;
 		}
 
-		private static CommandLine commandLine(StepExecutionContext context) {
+		private static List<String> commandLine(StepExecutionContext context) {
 			String executable = context.getCurrentStep().getExecutable();
 			if (executable.startsWith("./") && SystemUtils.IS_OS_WINDOWS) {
 				executable = separatorsToSystem(executable.substring(2));
 			}
-			return CommandLine.script(executable, context.getCurrentStep().getArguments());
+			return ProcessRunner.script(executable, context.getCurrentStep().getArguments());
 		}
 
 		@Override
 		public StepExecutionResult run(StepExecutionContext context) {
-			val result = commandLine(context)
-				.newInvocation()
-				.redirectStandardOutput(toSystemOutput())
-				.redirectErrorOutput(toSystemError())
-				.workingDirectory(context.getCurrentWorkingDirectory())
-				.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
-				.waitFor();
+			val result = ProcessRunner.run(commandLine(context), context.getCurrentWorkingDirectory());
 
-			String output = result.getOutput().withNormalizedEndOfLine().getAsString();
+			String output = result.getOutputWithNormalizedEndOfLine();
 			if (output.isEmpty()) {
 				return stepExecuted(result.getExitValue());
 			}

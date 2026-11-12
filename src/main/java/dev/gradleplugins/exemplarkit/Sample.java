@@ -15,7 +15,6 @@
  */
 package dev.gradleplugins.exemplarkit;
 
-import dev.nokee.core.exec.CommandLineTool;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.tools.ant.Project;
@@ -27,6 +26,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 public abstract class Sample {
 	public static Sample empty() {
@@ -73,11 +73,8 @@ public abstract class Sample {
 		@Override
 		void writeToDirectory(File directory) {
 			if (SystemUtils.IS_OS_UNIX) {
-				CommandLineTool.fromPath("unzip")
-					.get()
-					.withArguments("-q", "-o", sampleArchiveFile.getAbsolutePath(), "-d", directory.getAbsolutePath())
-					.execute()
-					.waitFor()
+				File unzip = ProcessRunner.findOnPath("unzip").orElseThrow(() -> new IllegalStateException("Could not find 'unzip' on PATH."));
+				ProcessRunner.run(Arrays.asList(unzip.getAbsolutePath(), "-q", "-o", sampleArchiveFile.getAbsolutePath(), "-d", directory.getAbsolutePath()), null)
 					.assertNormalExitValue();
 			} else {
 				Expand unzip = new Expand();

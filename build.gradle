@@ -40,7 +40,6 @@ dependencies {
 
 	implementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	runtimeOnly 'org.asciidoctor:asciidoctorj:2.2.0'
-	implementation 'dev.nokee.commons:commons-exec:latest.integration'
 //	implementation project(':coreUtils')
 //	implementation gradleRunnerKit()
 	implementation "commons-io:commons-io:${commonsIoVersion}"
