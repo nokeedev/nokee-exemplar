@@ -13,64 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.gradleplugins.exemplarkit
+package dev.gradleplugins.exemplarkit;
 
 
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import static dev.gradleplugins.exemplarkit.StepExecutors.changeDirectory
-import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.junit.jupiter.api.Assertions.assertThrows
+import java.io.File;
+
+import static dev.gradleplugins.exemplarkit.StepExecutors.changeDirectory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StepExecutionChangeDirectorySandboxEscapeTest {
 	private static Step cd(String path) {
-		return Step.builder().execute('cd', path).build()
+		return Step.builder().execute("cd", path).build();
 	}
 
 	@Test
-	void "throws exception when changing directory outside of sandbox directory relatively"(@TempDir File testDirectory) {
-		def context = new StepExecutionContext(testDirectory).forStep(cd('..'))
-		def ex = assertThrows(IllegalStateException, {
-			def result = changeDirectory().run(context)
-			assertEquals(StepExecutionOutcome.FAILED, result.outcome)
-			assertEquals('Cannot change directory outside of sandbox directory.', result.reason.orElse(null))
-		})
-		assertEquals('Cannot change directory outside of sandbox directory.', ex.message)
+	void throwsExceptionWhenChangingDirectoryOutsideOfSandboxDirectoryRelatively(@TempDir File testDirectory) {
+		StepExecutionContext context = new StepExecutionContext(testDirectory).forStep(cd(".."));
+		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
+			StepExecutionResult result = changeDirectory().run(context);
+			assertEquals(StepExecutionOutcome.FAILED, result.getOutcome());
+			assertEquals("Cannot change directory outside of sandbox directory.", result.getReason().orElse(null));
+		});
+		assertEquals("Cannot change directory outside of sandbox directory.", ex.getMessage());
 	}
 
 	@Test
-	void "throws exception when changing directory outside of sandbox directory absolute"(@TempDir File testDirectory) {
-		def context = new StepExecutionContext(testDirectory).forStep(cd(testDirectory.parent))
-		def ex = assertThrows(IllegalStateException, {
-			def result = changeDirectory().run(context)
-			assertEquals(StepExecutionOutcome.FAILED, result.outcome)
-			assertEquals('Cannot change directory outside of sandbox directory.', result.reason.orElse(null))
-		})
-		assertEquals('Cannot change directory outside of sandbox directory.', ex.message)
+	void throwsExceptionWhenChangingDirectoryOutsideOfSandboxDirectoryAbsolute(@TempDir File testDirectory) {
+		StepExecutionContext context = new StepExecutionContext(testDirectory).forStep(cd(testDirectory.getParent()));
+		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
+			StepExecutionResult result = changeDirectory().run(context);
+			assertEquals(StepExecutionOutcome.FAILED, result.getOutcome());
+			assertEquals("Cannot change directory outside of sandbox directory.", result.getReason().orElse(null));
+		});
+		assertEquals("Cannot change directory outside of sandbox directory.", ex.getMessage());
 	}
 
 	@Test
-	void "does not throw exception when changing directory back to sandbox directory relatively"(@TempDir File testDirectory) {
-		given:
-		def context = new StepExecutionContext(testDirectory)
-			.currentWorkingDirectory(new File(testDirectory, 'foo'))
-			.forStep(cd('..'))
-		def result = changeDirectory().run(context)
+	void doesNotThrowExceptionWhenChangingDirectoryBackToSandboxDirectoryRelatively(@TempDir File testDirectory) {
+		// given:
+		StepExecutionContext context = new StepExecutionContext(testDirectory)
+			.currentWorkingDirectory(new File(testDirectory, "foo"))
+			.forStep(cd(".."));
+		StepExecutionResult result = changeDirectory().run(context);
 
-		expect:
-		assertEquals(StepExecutionOutcome.EXECUTED, result.outcome)
+		// expect:
+		assertEquals(StepExecutionOutcome.EXECUTED, result.getOutcome());
 	}
 
 	@Test
-	void "does not throw exception when changing directory back to sandbox directory absolute"(@TempDir File testDirectory) {
-		given:
-		def context = new StepExecutionContext(testDirectory)
-			.currentWorkingDirectory(new File(testDirectory, 'foo'))
-			.forStep(cd(testDirectory.absolutePath))
-		def result = changeDirectory().run(context)
+	void doesNotThrowExceptionWhenChangingDirectoryBackToSandboxDirectoryAbsolute(@TempDir File testDirectory) {
+		// given:
+		StepExecutionContext context = new StepExecutionContext(testDirectory)
+			.currentWorkingDirectory(new File(testDirectory, "foo"))
+			.forStep(cd(testDirectory.getAbsolutePath()));
+		StepExecutionResult result = changeDirectory().run(context);
 
-		expect:
-		assertEquals(StepExecutionOutcome.EXECUTED, result.outcome)
+		// expect:
+		assertEquals(StepExecutionOutcome.EXECUTED, result.getOutcome());
 	}
 }

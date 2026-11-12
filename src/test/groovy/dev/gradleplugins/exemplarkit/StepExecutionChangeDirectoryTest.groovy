@@ -13,45 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.gradleplugins.exemplarkit
+package dev.gradleplugins.exemplarkit;
 
 
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.function.Executable
-import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.io.TempDir;
 
-import static dev.gradleplugins.exemplarkit.StepExecutors.changeDirectory
-import static org.junit.jupiter.api.Assertions.assertAll
-import static org.junit.jupiter.api.Assertions.assertEquals
+import java.io.File;
+import java.io.IOException;
+
+import static dev.gradleplugins.exemplarkit.StepExecutors.changeDirectory;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StepExecutionChangeDirectoryTest {
 	@TempDir
-	protected File testDirectory
+	protected File testDirectory;
 
 	private static Step cd(String path) {
-		return Step.builder().execute('cd', path).build()
+		return Step.builder().execute("cd", path).build();
 	}
 
 	@Test
-	void "fail step when canonicalize sandbox directory"() {
-		def context = new StepExecutionContext(new ThrowExceptionWhenCanonicalizeFile(testDirectory))
+	void failStepWhenCanonicalizeSandboxDirectory() {
+		StepExecutionContext context = new StepExecutionContext(new ThrowExceptionWhenCanonicalizeFile(testDirectory))
 			.currentWorkingDirectory(testDirectory)
-			.forStep(cd('foo'))
-		def result = changeDirectory().run(context)
-		assertAll({
-			assertEquals(StepExecutionOutcome.FAILED, result.outcome)
-			assertEquals("Could not canonicalize.", result.reason.orElse(null))
-		} as Executable)
+			.forStep(cd("foo"));
+		StepExecutionResult result = changeDirectory().run(context);
+		assertAll((Executable) () -> {
+			assertEquals(StepExecutionOutcome.FAILED, result.getOutcome());
+			assertEquals("Could not canonicalize.", result.getReason().orElse(null));
+		});
 	}
 
 	private static class ThrowExceptionWhenCanonicalizeFile extends File {
 		ThrowExceptionWhenCanonicalizeFile(File file) {
-			super(file.absolutePath)
+			super(file.getAbsolutePath());
 		}
 
 		@Override
-		File getCanonicalFile() throws IOException {
-			throw new IOException("Could not canonicalize.")
+		public File getCanonicalFile() throws IOException {
+			throw new IOException("Could not canonicalize.");
 		}
 	}
 }

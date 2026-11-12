@@ -13,101 +13,104 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.gradleplugins.exemplarkit
+package dev.gradleplugins.exemplarkit;
 
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import static dev.gradleplugins.exemplarkit.Exemplar.builder
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
-import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.junit.jupiter.api.Assertions.assertThrows
+import java.io.File;
+import java.io.IOException;
+
+import static dev.gradleplugins.exemplarkit.Exemplar.builder;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ExemplarBuilderTest {
 
 	@Nested
 	class Empty {
-		static Exemplar subject = builder().build()
+		static Exemplar subject = builder().build();
 
 		@Test
-		void "has no steps"() {
-			assertThat(subject.steps, emptyIterable())
+		void hasNoSteps() {
+			assertThat(subject.getSteps(), emptyIterable());
 		}
 
 		@Test
-		void "has empty sample"() {
-			assertThat(subject.sample, equalTo(Sample.empty()))
+		void hasEmptySample() {
+			assertThat(subject.getSample(), equalTo(Sample.empty()));
 		}
 	}
 
 	@Nested
 	class AddingSteps {
 		private final Step newStep() {
-			return Step.builder().execute('cat').build()
+			return Step.builder().execute("cat").build();
 		}
 
 		@Test
-		void "single step"() {
-			def step = newStep()
-			def exemplar = builder().step(step).build()
-			assertThat(exemplar.steps, contains(step))
+		void singleStep() {
+			Step step = newStep();
+			Exemplar exemplar = builder().step(step).build();
+			assertThat(exemplar.getSteps(), contains(step));
 		}
 
 		@Test
-		void "multi-step"() {
-			def step1 = newStep()
-			def step2 = newStep()
-			def exemplar = builder().step(step1).step(step2).build()
-			assertThat(exemplar.steps, contains(step1, step2))
+		void multiStep() {
+			Step step1 = newStep();
+			Step step2 = newStep();
+			Exemplar exemplar = builder().step(step1).step(step2).build();
+			assertThat(exemplar.getSteps(), contains(step1, step2));
 		}
 
 		@Test
-		void "can use step builder"() {
-			def exemplar = builder().step(Step.builder().execute('ls')).build()
-			assertThat(exemplar.steps, iterableWithSize(1))
+		void canUseStepBuilder() {
+			Exemplar exemplar = builder().step(Step.builder().execute("ls")).build();
+			assertThat(exemplar.getSteps(), iterableWithSize(1));
 		}
 
 		@Test
-		void "throws exception for null step"() {
-			def ex = assertThrows(NullPointerException, { builder().step((Step)null) })
-			assertEquals("Step cannot be null.", ex.message)
+		void throwsExceptionForNullStep() {
+			NullPointerException ex = assertThrows(NullPointerException.class, () -> builder().step((Step) null));
+			assertEquals("Step cannot be null.", ex.getMessage());
 		}
 
 		@Test
-		void "throws exception for null step builder"() {
-			def ex = assertThrows(NullPointerException, { builder().step((Step.Builder)null) })
-			assertEquals("Step builder cannot be null.", ex.message)
+		void throwsExceptionForNullStepBuilder() {
+			NullPointerException ex = assertThrows(NullPointerException.class, () -> builder().step((Step.Builder) null));
+			assertEquals("Step builder cannot be null.", ex.getMessage());
 		}
 	}
 
 	@Test
-	void "can source sample from directory"(@TempDir File testDirectory) {
-		def sampleDirectory = testDirectory
-		def exemplar = builder().fromDirectory(sampleDirectory).build()
-		assertEquals(Sample.fromDirectory(sampleDirectory), exemplar.sample)
+	void canSourceSampleFromDirectory(@TempDir File testDirectory) {
+		File sampleDirectory = testDirectory;
+		Exemplar exemplar = builder().fromDirectory(sampleDirectory).build();
+		assertEquals(Sample.fromDirectory(sampleDirectory), exemplar.getSample());
 	}
 
 	@Test
-	void "throws exception if sample directory does not exists"(@TempDir File testDirectory) {
-		def sampleDirectory = new File(testDirectory, 'non-existant')
-		def ex = assertThrows(IllegalArgumentException, { builder().fromDirectory(sampleDirectory) })
-		assertEquals("Please specify a valid directory because directory '${testDirectory.absolutePath}${File.separator}non-existant' does not exists.".toString(), ex.message)
+	void throwsExceptionIfSampleDirectoryDoesNotExists(@TempDir File testDirectory) {
+		File sampleDirectory = new File(testDirectory, "non-existant");
+		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> builder().fromDirectory(sampleDirectory));
+		assertEquals("Please specify a valid directory because directory '" + testDirectory.getAbsolutePath() + File.separator + "non-existant' does not exists.", ex.getMessage());
 	}
 
 	@Test
-	void "can source sample from archive"(@TempDir File testDirectory) {
-		def sampleArchive = new File(testDirectory, 'foo.zip')
-		sampleArchive.createNewFile()
-		def exemplar = builder().fromArchive(sampleArchive).build()
-		assertEquals(Sample.fromArchive(sampleArchive), exemplar.sample)
+	void canSourceSampleFromArchive(@TempDir File testDirectory) throws IOException {
+		File sampleArchive = new File(testDirectory, "foo.zip");
+		sampleArchive.createNewFile();
+		Exemplar exemplar = builder().fromArchive(sampleArchive).build();
+		assertEquals(Sample.fromArchive(sampleArchive), exemplar.getSample());
 	}
 
 	@Test
-	void "throws exception if sample archive does not exists"(@TempDir File testDirectory) {
-		def sampleArchive = new File(testDirectory, 'foo.zip')
-		def ex = assertThrows(IllegalArgumentException, { builder().fromArchive(sampleArchive) })
-		assertEquals("Please specify a valid archive because archive '${testDirectory.absolutePath}${File.separator}foo.zip' does not exists.".toString(), ex.message)
+	void throwsExceptionIfSampleArchiveDoesNotExists(@TempDir File testDirectory) {
+		File sampleArchive = new File(testDirectory, "foo.zip");
+		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> builder().fromArchive(sampleArchive));
+		assertEquals("Please specify a valid archive because archive '" + testDirectory.getAbsolutePath() + File.separator + "foo.zip' does not exists.", ex.getMessage());
 	}
 }

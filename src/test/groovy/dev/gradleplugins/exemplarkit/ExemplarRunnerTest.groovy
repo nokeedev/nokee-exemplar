@@ -13,76 +13,82 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.gradleplugins.exemplarkit
+package dev.gradleplugins.exemplarkit;
 
-import org.hamcrest.Matchers
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import static dev.gradleplugins.exemplarkit.ExemplarExecutor.defaultExecutor
-import static dev.gradleplugins.exemplarkit.ExemplarRunner.create
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.equalTo
-import static org.junit.jupiter.api.Assertions.assertTrue
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+
+import static dev.gradleplugins.exemplarkit.ExemplarExecutor.defaultExecutor;
+import static dev.gradleplugins.exemplarkit.ExemplarRunner.create;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExemplarRunnerTest {
 	@TempDir
-	protected File testDirectory
+	protected File testDirectory;
 
 	@Test
-	void "can execute empty exemplar"() {
-		def exemplar = Exemplar.builder().build()
-		def result = create(defaultExecutor()).inDirectory(testDirectory).using(exemplar).run()
-		assertThat(result.stepResults, Matchers.emptyIterable())
+	void canExecuteEmptyExemplar() {
+		Exemplar exemplar = Exemplar.builder().build();
+		ExemplarExecutionResult result = create(defaultExecutor()).inDirectory(testDirectory).using(exemplar).run();
+		assertThat(result.getStepResults(), Matchers.emptyIterable());
 	}
 
 	@Nested
 	class StepOnSampleFromDirectory {
-		@TempDir protected File testDirectory
+		@TempDir protected File testDirectory;
 
-		ExemplarExecutionResult result
+		ExemplarExecutionResult result;
 
 		@BeforeEach
-		void "an exemplar"() {
-			def sampleDirectory = new File(testDirectory, 'sample')
-			sampleDirectory.mkdir()
-			new File(sampleDirectory, 'foo.txt') << '''In a galaxy far far away,
-				|Tada, da da ta da ta
-				|Tada da da
-				|'''.stripMargin()
+		void anExemplar() throws IOException {
+			File sampleDirectory = new File(testDirectory, "sample");
+			sampleDirectory.mkdir();
+			Files.writeString(new File(sampleDirectory, "foo.txt").toPath(), """
+				In a galaxy far far away,
+				Tada, da da ta da ta
+				Tada da da
+				""", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
-			def workingDirectory = new File(testDirectory, 'working-dir')
-			workingDirectory.mkdir()
+			File workingDirectory = new File(testDirectory, "working-dir");
+			workingDirectory.mkdir();
 
-			def exemplar = Exemplar.builder()
+			Exemplar exemplar = Exemplar.builder()
 				.fromDirectory(sampleDirectory)
-				.step(Step.builder().execute('cat', 'foo.txt'))
-				.build()
-			result = create(defaultExecutor()).inDirectory(workingDirectory).using(exemplar).run()
+				.step(Step.builder().execute("cat", "foo.txt"))
+				.build();
+			result = create(defaultExecutor()).inDirectory(workingDirectory).using(exemplar).run();
 		}
 
 		@Test
-		void "has one step result"() {
-			assertThat(result.stepResults, Matchers.iterableWithSize(1))
+		void hasOneStepResult() {
+			assertThat(result.getStepResults(), Matchers.iterableWithSize(1));
 		}
 
 		@Test
-		void "has step output"() {
-			assertTrue(result.stepResults.get(0).output.present)
-			assertThat(result.stepResults.get(0).output.get(), equalTo('In a galaxy far far away,\nTada, da da ta da ta\nTada da da\n'))
+		void hasStepOutput() {
+			assertTrue(result.getStepResults().get(0).getOutput().isPresent());
+			assertThat(result.getStepResults().get(0).getOutput().get(), equalTo("In a galaxy far far away,\nTada, da da ta da ta\nTada da da\n"));
 		}
 
 		@Test
-		void "has executed outcome"() {
-			assertThat(result.stepResults.get(0).outcome, equalTo(StepExecutionOutcome.EXECUTED))
+		void hasExecutedOutcome() {
+			assertThat(result.getStepResults().get(0).getOutcome(), equalTo(StepExecutionOutcome.EXECUTED));
 		}
 
 		@Test
-		void "has exit value"() {
-			assertTrue(result.stepResults.get(0).exitValue.present)
-			assertThat(result.stepResults.get(0).exitValue.get(), equalTo(0))
+		void hasExitValue() {
+			assertTrue(result.getStepResults().get(0).getExitValue().isPresent());
+			assertThat(result.getStepResults().get(0).getExitValue().get(), equalTo(0));
 		}
 	}
 }

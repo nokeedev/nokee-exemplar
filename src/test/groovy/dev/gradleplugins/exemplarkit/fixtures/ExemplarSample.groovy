@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.gradleplugins.exemplarkit.fixtures
+package dev.gradleplugins.exemplarkit.fixtures;
 
-import dev.gradleplugins.fixtures.sources.SourceElement
-import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceFile;
 
-class ExemplarSample {
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
+public class ExemplarSample {
 	private final SourceElement delegate = new SourceElement() {
 		@Override
-		List<SourceFile> getFiles() {
-			return [sourceFile('', 'hello', '''#!/usr/bin/env bash
+		public List<SourceFile> getFiles() {
+			return Arrays.asList(sourceFile("", "hello", """
+#!/usr/bin/env bash
 echo Hello, world!
-''')]
+"""));
 		}
+	};
+
+	public void writeToDirectory(File directory) {
+		delegate.writeToSourceDir(directory);
 	}
 
-	void writeToDirectory(File directory) {
-		delegate.writeToSourceDir(directory)
-	}
-
-	void writeToDirectoryAsArchive() {
+	public void writeToDirectoryAsArchive() {
 
 	}
 }

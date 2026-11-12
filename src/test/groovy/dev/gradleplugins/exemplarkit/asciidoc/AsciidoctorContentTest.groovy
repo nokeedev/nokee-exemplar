@@ -13,102 +13,119 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.gradleplugins.exemplarkit.asciidoc
+package dev.gradleplugins.exemplarkit.asciidoc;
 
-import org.asciidoctor.ast.Block
-import org.asciidoctor.ast.Document
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
+import org.asciidoctor.ast.Block;
+import org.asciidoctor.ast.Document;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.nio.file.Path
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
-import static dev.gradleplugins.exemplarkit.asciidoc.AsciidoctorContent.load
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.contains
+import static dev.gradleplugins.exemplarkit.asciidoc.AsciidoctorContent.load;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 
 final class AsciidoctorContentTest {
 	@TempDir
-	protected Path testDirectory
-	private final def visitor = new CollectingVisitor();
+	protected Path testDirectory;
+	private final CollectingVisitor visitor = new CollectingVisitor();
 
-	private File asciidoc(String content = '') {
-		File adocFile = testDirectory.resolve('foo.adoc').toFile()
-		adocFile << content
-		return adocFile
+	private File asciidoc() {
+		return asciidoc("");
+	}
+
+	private File asciidoc(String content) {
+		File adocFile = testDirectory.resolve("foo.adoc").toFile();
+		try {
+			Files.writeString(adocFile.toPath(), content, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		return adocFile;
 	}
 
 	@Test
-	void "can visit empty file"() {
-		load(asciidoc()).walk(visitor)
-		assertThat(visitor.nodes, contains('{document}'))
+	void canVisitEmptyFile() {
+		load(asciidoc()).walk(visitor);
+		assertThat(visitor.nodes, contains("{document}"));
 	}
 
 	@Test
-	void "can visit file with single header"() {
-		load(asciidoc('= Title\n')).walk(visitor)
-		assertThat(visitor.nodes, contains('{document}'))
+	void canVisitFileWithSingleHeader() {
+		load(asciidoc("= Title\n")).walk(visitor);
+		assertThat(visitor.nodes, contains("{document}"));
 	}
 
 	@Test
-	void "can visit file with listing block"() {
-		def adocFile = asciidoc '''= Title
-			|
-			|[listing.terminal]
-			|----
-			|$ ./gradlew assemble
-			|
-			|BUILD SUCCESSFUL
-			|4 actionable tasks: 4 executed
-			|----
-			|'''.stripMargin()
+	void canVisitFileWithListingBlock() {
+		File adocFile = asciidoc("""
+			= Title
 
-		load(adocFile).walk(visitor)
-		assertThat(visitor.nodes, contains('{document}', '{block-listing}'))
+			[listing.terminal]
+			----
+			$ ./gradlew assemble
+
+			BUILD SUCCESSFUL
+			4 actionable tasks: 4 executed
+			----
+			""");
+
+		load(adocFile).walk(visitor);
+		assertThat(visitor.nodes, contains("{document}", "{block-listing}"));
 	}
 
 	@Test
-	void "can visit file with multi language sample"() {
-		def adocFile = asciidoc '''= Title
-			|
-			|====
-			|[.multi-language-sample]
-			|=====
-			|.build.gradle
-			|[source,groovy]
-			|----
-			|plugins {
-			|    id 'dev.nokee.cpp-application'
-			|}
-			|----
-			|=====
-			|[.multi-language-sample]
-			|=====
-			|.build.gradle.kts
-			|[source,kotlin]
-			|----
-			|plugins {
-			|    id("dev.nokee.cpp-application")
-			|}
-			|----
-			|=====
-			|====
-			|'''.stripMargin()
+	void canVisitFileWithMultiLanguageSample() {
+		File adocFile = asciidoc("""
+			= Title
 
-		load(adocFile).walk(visitor)
-		assertThat(visitor.nodes, contains('{document}', '{block-example}', '{block-example}', '{block-listing}', '{block-example}', '{block-listing}'))
+			====
+			[.multi-language-sample]
+			=====
+			.build.gradle
+			[source,groovy]
+			----
+			plugins {
+			    id 'dev.nokee.cpp-application'
+			}
+			----
+			=====
+			[.multi-language-sample]
+			=====
+			.build.gradle.kts
+			[source,kotlin]
+			----
+			plugins {
+			    id("dev.nokee.cpp-application")
+			}
+			----
+			=====
+			====
+			""");
+
+		load(adocFile).walk(visitor);
+		assertThat(visitor.nodes, contains("{document}", "{block-example}", "{block-example}", "{block-listing}", "{block-example}", "{block-listing}"));
 	}
 
 	private static final class CollectingVisitor implements AsciidoctorContent.Visitor {
-		final List<String> nodes = new ArrayList<>()
+		final List<String> nodes = new ArrayList<>();
 
 		@Override
-		void visit(Document node) {
-			nodes << '{document}'
+		public void visit(Document node) {
+			nodes.add("{document}");
 		}
 
 		@Override
-		void visit(Block node) {
-			nodes << "{block-${node.nodeName}}".toString()
+		public void visit(Block node) {
+			nodes.add("{block-" + node.getNodeName() + "}");
 		}
 	}
 }
