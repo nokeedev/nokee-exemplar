@@ -20,16 +20,19 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static dev.gradleplugins.exemplarkit.ExemplarRunner.create;
+import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepSkipped;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class ExemplarRunnerConfigurationTest {
 	private static final File aWorkingDirectory = Paths.get("/a/working/directory").toFile();
 	private static final Exemplar exemplar = Exemplar.builder().build();
-	private final StepExecutor defaultStepExecutor = mock(StepExecutor.class);
+	private final RecordingStepExecutor defaultStepExecutor = new RecordingStepExecutor();
 	private final ExemplarExecutor executor = ExemplarExecutor.builder().defaultCommandLineToolExecutor(defaultStepExecutor).build();
 
 	@Nested
@@ -77,13 +80,28 @@ class ExemplarRunnerConfigurationTest {
 	void throwsExceptionIfRunningWithoutWorkingDirectory() {
 		InvalidRunnerConfigurationException ex = assertThrows(InvalidRunnerConfigurationException.class, () -> create(executor).using(exemplar).run());
 		assertEquals("Please specify a working directory using ExemplarRunner#inDirectory(File).", ex.getMessage());
-		verify(defaultStepExecutor, never()).run(any());
+		assertThat(defaultStepExecutor.runs, empty());
 	}
 
 	@Test
 	void throwsExceptionIfRunningWithoutExemplar() {
 		InvalidRunnerConfigurationException ex = assertThrows(InvalidRunnerConfigurationException.class, () -> create(executor).inDirectory(aWorkingDirectory).run());
 		assertEquals("Please specify an exemplar using ExemplarRunner#using(Exemplar).", ex.getMessage());
-		verify(defaultStepExecutor, never()).run(any());
+		assertThat(defaultStepExecutor.runs, empty());
+	}
+
+	private static final class RecordingStepExecutor implements StepExecutor {
+		final List<StepExecutionContext> runs = new ArrayList<>();
+
+		@Override
+		public boolean canHandle(Step step) {
+			return true;
+		}
+
+		@Override
+		public StepExecutionResult run(StepExecutionContext context) {
+			runs.add(context);
+			return stepSkipped();
+		}
 	}
 }

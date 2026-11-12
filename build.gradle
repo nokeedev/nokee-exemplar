@@ -5,6 +5,10 @@ plugins {
 	id 'antlr'
 
 	id 'maven-publish'
+
+	id 'jvm-test-suite'
+	id 'nokeebuild.use-junit-platform-in-test-suites'
+	id 'nokeebuild.use-latest-java-lts-in-test-suites'
 }
 
 group = 'dev.gradleplugins.exemplar'
@@ -13,15 +17,6 @@ version = '1.0-SNAPSHOT'
 java {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-tasks.named('compileTestJava', JavaCompile) {
-	javaCompiler = javaToolchains.compilerFor {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
-	options.release = 17
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
 }
 
 def guavaVersion = '31.0.1-jre'
@@ -42,29 +37,29 @@ dependencies {
 	implementation 'org.apache.ant:ant:1.9.13' // For unziping sample
 	implementation 'org.commonmark:commonmark:0.24.0'
 
-	testImplementation "com.google.guava:guava-testlib:30.0-jre"
-	testImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.integration"
-	testImplementation "org.zeroturnaround:zt-zip:1.13"
-//	testImplementation gradleFixtures()
-
 	testFixturesApi "org.antlr:antlr4:${antlrVersion}"
 }
 
-//region Configure JUnit 5
-dependencies {
-	testImplementation "org.hamcrest:hamcrest:2.2"
-	testImplementation "org.mockito:mockito-core:2.28.2"
-	testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
-	testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.0"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
-}
-tasks.named('test', Test) {
-	it.useJUnitPlatform()
-	it.javaLauncher = javaToolchains.launcherFor {
-		languageVersion = JavaLanguageVersion.of(17)
+testing {
+	suites {
+		test(JvmTestSuite) {
+			dependencies {
+				implementation "com.google.guava:guava-testlib:30.0-jre"
+				implementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.integration"
+				implementation "org.zeroturnaround:zt-zip:1.13"
+				implementation "org.hamcrest:hamcrest:2.2"
+			}
+
+			targets.all {
+				testTask.configure {
+					javaLauncher = javaToolchains.launcherFor {
+						languageVersion = JavaLanguageVersion.of(21)
+					}
+				}
+			}
+		}
 	}
 }
-//endregion
 
 //region Configure Antlr for testFixtures component
 def generateGrammarSource = tasks.named('generateTestFixturesGrammarSource', AntlrTask)
