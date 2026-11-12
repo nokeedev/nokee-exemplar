@@ -15,14 +15,11 @@
  */
 package dev.gradleplugins.exemplarkit;
 
-import lombok.ToString;
-
 import java.io.File;
 import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
-@ToString
 public final class Exemplar {
 	private final Sample sample;
 	private final List<Step> steps;
@@ -38,6 +35,11 @@ public final class Exemplar {
 
 	public List<Step> getSteps() {
 		return Collections.unmodifiableList(steps);
+	}
+
+	@Override
+	public String toString() {
+		return "Exemplar(sample=" + getSample() + ", steps=" + getSteps() + ")";
 	}
 
 	public static Builder builder() {

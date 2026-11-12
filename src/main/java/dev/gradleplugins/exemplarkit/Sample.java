@@ -15,7 +15,6 @@
  */
 package dev.gradleplugins.exemplarkit;
 
-import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Expand;
@@ -26,6 +25,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.Arrays;
 
 public abstract class Sample {
@@ -49,7 +49,6 @@ public abstract class Sample {
 
 	abstract void writeToDirectory(File directory);
 
-	@EqualsAndHashCode(callSuper = false)
 	private static final class SampleEmptyImpl extends Sample {
 		@Override
 		void writeToDirectory(File directory) {
@@ -60,9 +59,18 @@ public abstract class Sample {
 		public String toString() {
 			return "Sample.empty()";
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			return o instanceof SampleEmptyImpl;
+		}
+
+		@Override
+		public int hashCode() {
+			return 1;
+		}
 	}
 
-	@EqualsAndHashCode(callSuper = false)
 	private static final class SampleArchiveImpl extends Sample {
 		private final File sampleArchiveFile;
 
@@ -89,9 +97,21 @@ public abstract class Sample {
 		public String toString() {
 			return "Sample.fromArchive(" + sampleArchiveFile.getAbsolutePath() + ")";
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof SampleArchiveImpl)) return false;
+
+			return Objects.equals(sampleArchiveFile, ((SampleArchiveImpl) o).sampleArchiveFile);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(sampleArchiveFile);
+		}
 	}
 
-	@EqualsAndHashCode(callSuper = false)
 	private static final class SampleDirectoryImpl extends Sample {
 		private final File sampleDirectory;
 
@@ -123,6 +143,19 @@ public abstract class Sample {
 		@Override
 		public String toString() {
 			return "Sample.fromDirectory(" + sampleDirectory.getAbsolutePath() + ")";
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof SampleDirectoryImpl)) return false;
+
+			return Objects.equals(sampleDirectory, ((SampleDirectoryImpl) o).sampleDirectory);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(sampleDirectory);
 		}
 	}
 }

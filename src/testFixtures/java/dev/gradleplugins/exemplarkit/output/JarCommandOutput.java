@@ -15,20 +15,23 @@
  */
 package dev.gradleplugins.exemplarkit.output;
 
-import lombok.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JarCommandOutput {
 	private final Set<String> paths;
-	@EqualsAndHashCode.Exclude private final String output;
+	private final String output;
+
+	private JarCommandOutput(Set<String> paths, String output) {
+		this.paths = paths;
+		this.output = output;
+	}
 
 	public String get() {
 		return output;
@@ -43,6 +46,20 @@ public final class JarCommandOutput {
 		ParseTreeWalker.DEFAULT.walk((ParseTreeListener)l, parser.output());
 
 		return new JarCommandOutput(l.allPaths, output);
+	}
+
+	// Equality only considers the parsed paths, not the raw output
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof JarCommandOutput)) return false;
+
+		return Objects.equals(paths, ((JarCommandOutput) o).paths);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(paths);
 	}
 
 	private static class ExtractJarModel extends dev.gradleplugins.exemplarkit.output.JarCommandOutputBaseListener {

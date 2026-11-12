@@ -15,9 +15,9 @@
  */
 package dev.gradleplugins.exemplarkit;
 
-import lombok.val;
 import org.apache.commons.lang3.SystemUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,7 +53,7 @@ public final class StepExecutors {
 
 			@Override
 			public StepExecutionResult run(StepExecutionContext context) {
-				val result = ProcessRunner.run(ProcessRunner.script(target, context.getCurrentStep().getArguments()), context.getCurrentWorkingDirectory());
+				ProcessRunner.Result result = ProcessRunner.run(ProcessRunner.script(target, context.getCurrentStep().getArguments()), context.getCurrentWorkingDirectory());
 
 				return stepExecuted(result.getExitValue(), result.getOutput());
 			}
@@ -82,7 +82,7 @@ public final class StepExecutors {
 		public StepExecutionResult run(StepExecutionContext context) {
 			try {
 
-				val newCurrentWorkingDirectory = computeNewCurrentWorkingDirectory(context).toFile().getCanonicalFile();
+				File newCurrentWorkingDirectory = computeNewCurrentWorkingDirectory(context).toFile().getCanonicalFile();
 				if (!context.getSandboxDirectory().getCanonicalFile().equals(newCurrentWorkingDirectory) && context.getSandboxDirectory().getCanonicalPath().startsWith(newCurrentWorkingDirectory.getAbsolutePath())) {
 					throw new IllegalStateException("Cannot change directory outside of sandbox directory.");
 				}
@@ -98,7 +98,7 @@ public final class StepExecutors {
 		}
 
 		private Path computeNewCurrentWorkingDirectory(StepExecutionContext context) {
-			val result = Paths.get(context.getCurrentStep().getArguments().get(0));
+			Path result = Paths.get(context.getCurrentStep().getArguments().get(0));
 			if (result.isAbsolute()) {
 				return result;
 			}
@@ -128,7 +128,7 @@ public final class StepExecutors {
 
 		@Override
 		public StepExecutionResult run(StepExecutionContext context) {
-			val result = ProcessRunner.run(commandLine(context), context.getCurrentWorkingDirectory());
+			ProcessRunner.Result result = ProcessRunner.run(commandLine(context), context.getCurrentWorkingDirectory());
 
 			String output = result.getOutputWithNormalizedEndOfLine();
 			if (output.isEmpty()) {

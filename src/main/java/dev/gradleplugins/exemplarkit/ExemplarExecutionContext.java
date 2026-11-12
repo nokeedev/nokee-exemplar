@@ -15,15 +15,42 @@
  */
 package dev.gradleplugins.exemplarkit;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-
 import java.io.File;
+import java.util.Objects;
 
-@Value
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class ExemplarExecutionContext {
-	File workingDirectory;
-	Exemplar exemplar;
+final class ExemplarExecutionContext {
+	private final File workingDirectory;
+	private final Exemplar exemplar;
+
+	ExemplarExecutionContext(File workingDirectory, Exemplar exemplar) {
+		this.workingDirectory = workingDirectory;
+		this.exemplar = exemplar;
+	}
+
+	public File getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	public Exemplar getExemplar() {
+		return exemplar;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ExemplarExecutionContext)) return false;
+
+		ExemplarExecutionContext that = (ExemplarExecutionContext) o;
+		return Objects.equals(workingDirectory, that.workingDirectory) && Objects.equals(exemplar, that.exemplar);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(workingDirectory, exemplar);
+	}
+
+	@Override
+	public String toString() {
+		return "ExemplarExecutionContext(workingDirectory=" + workingDirectory + ", exemplar=" + exemplar + ")";
+	}
 }

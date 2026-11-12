@@ -19,21 +19,25 @@ import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.CreateActio
 import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.ExtractActionContext;
 import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.InflateActionContext;
 import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.UnzipHeaderContext;
-import lombok.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
 public final class UnzipCommandOutput {
 	private final String archivePath;
 	private final Set<ArchiveAction> actions;
-	@EqualsAndHashCode.Exclude private final String output;
+	private final String output;
+
+	public UnzipCommandOutput(String archivePath, Set<ArchiveAction> actions, String output) {
+		this.archivePath = archivePath;
+		this.actions = actions;
+		this.output = output;
+	}
 
 	public String get() {
 		return output;
@@ -50,19 +54,73 @@ public final class UnzipCommandOutput {
 		return new UnzipCommandOutput(l.getArchivePath(), l.getActions(), output);
 	}
 
+	// Equality only considers the parsed archive path and actions, not the raw output
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof UnzipCommandOutput)) return false;
+
+		UnzipCommandOutput that = (UnzipCommandOutput) o;
+		return Objects.equals(archivePath, that.archivePath) && Objects.equals(actions, that.actions);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(archivePath, actions);
+	}
+
 	private enum ArchiveOperation {
 		INFLATING, CREATING
 	}
 
-	@Value
-	private static class ArchiveAction {
-		@NonNull ArchiveOperation operation;
-		@NonNull String path;
+	private static final class ArchiveAction {
+		private final ArchiveOperation operation;
+		private final String path;
+
+		ArchiveAction(ArchiveOperation operation, String path) {
+			this.operation = Objects.requireNonNull(operation, "operation is marked non-null but is null");
+			this.path = Objects.requireNonNull(path, "path is marked non-null but is null");
+		}
+
+		public ArchiveOperation getOperation() {
+			return operation;
+		}
+
+		public String getPath() {
+			return path;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof ArchiveAction)) return false;
+
+			ArchiveAction that = (ArchiveAction) o;
+			return operation == that.operation && path.equals(that.path);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(operation, path);
+		}
+
+		@Override
+		public String toString() {
+			return "UnzipCommandOutput.ArchiveAction(operation=" + operation + ", path=" + path + ")";
+		}
 	}
 
 	private static class ExtractUnzipModel extends UnzipCommandOutputBaseListener {
-		@Getter private final Set<ArchiveAction> actions = new LinkedHashSet<>();
-		@Getter private String archivePath;
+		private final Set<ArchiveAction> actions = new LinkedHashSet<>();
+		private String archivePath;
+
+		public Set<ArchiveAction> getActions() {
+			return actions;
+		}
+
+		public String getArchivePath() {
+			return archivePath;
+		}
 
 		@Override
 		public void exitUnzipHeader(UnzipHeaderContext ctx) {

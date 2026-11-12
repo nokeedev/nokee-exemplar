@@ -17,9 +17,6 @@ package dev.gradleplugins.exemplarkit.output;
 
 import dev.gradleplugins.exemplarkit.output.TreeCommandOutputParser.EntryContext;
 import dev.gradleplugins.exemplarkit.output.TreeCommandOutputParser.TreeHeaderContext;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
@@ -29,12 +26,16 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
 public final class TreeCommandOutput {
 	final List<String> paths;
-	@EqualsAndHashCode.Exclude private final String output;
+	private final String output;
+
+	public TreeCommandOutput(List<String> paths, String output) {
+		this.paths = paths;
+		this.output = output;
+	}
 
 	public String get() {
 		return output;
@@ -50,6 +51,20 @@ public final class TreeCommandOutput {
 		ParseTreeWalker.DEFAULT.walk((ParseTreeListener)l, parser.output());
 
 		return new TreeCommandOutput(l.allPath, output);
+	}
+
+	// Equality only considers the parsed paths, not the raw output
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof TreeCommandOutput)) return false;
+
+		return Objects.equals(paths, ((TreeCommandOutput) o).paths);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(paths);
 	}
 
 	private static class ExtractTreeModel extends TreeCommandOutputBaseListener {
@@ -78,7 +93,7 @@ public final class TreeCommandOutput {
 			lastPath = ctx.element().getText();
 			currentLevel = level;
 
-			val pathSegment = new ArrayList<String>();
+			List<String> pathSegment = new ArrayList<>();
 			pathSegment.addAll(currentPath);
 			pathSegment.add(lastPath);
 			String path = String.join("/", pathSegment);

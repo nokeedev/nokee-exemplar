@@ -15,8 +15,6 @@
  */
 package dev.gradleplugins.exemplarkit;
 
-import lombok.val;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,14 +37,14 @@ public final class ExemplarExecutor {
 	ExemplarExecutionResult run(ExemplarExecutionContext context) {
 		context.getExemplar().getSample().writeToDirectory(context.getWorkingDirectory());
 
-		val stepContext = new StepExecutionContext(context.getWorkingDirectory());
-		val stepResults = context.getExemplar().getSteps().stream().map(it -> runStep(stepContext.forStep(it))).collect(Collectors.toList());
+		StepExecutionContext stepContext = new StepExecutionContext(context.getWorkingDirectory());
+		List<StepExecutionResult> stepResults = context.getExemplar().getSteps().stream().map(it -> runStep(stepContext.forStep(it))).collect(Collectors.toList());
 
 		return new ExemplarExecutionResult(stepResults);
 	}
 
 	private StepExecutionResult runStep(StepExecutionContext context) {
-		val executor = executors.stream().filter(it -> it.canHandle(context.getCurrentStep())).findFirst().orElse(defaultExecutor);
+		StepExecutor executor = executors.stream().filter(it -> it.canHandle(context.getCurrentStep())).findFirst().orElse(defaultExecutor);
 
 		try {
 			return executor.run(context);

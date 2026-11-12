@@ -15,9 +15,8 @@
  */
 package dev.gradleplugins.exemplarkit;
 
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.Iterables;
-import lombok.EqualsAndHashCode;
-import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -27,7 +26,6 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
-@EqualsAndHashCode
 public final class Step {
 	private final String executable;
 	private final List<String> arguments;
@@ -83,7 +81,7 @@ public final class Step {
 
 	@Override
 	public String toString() {
-		val toStringBuilder = toStringHelper(this)
+		ToStringHelper toStringBuilder = toStringHelper(this)
 			.add("command", String.join(" ", Iterables.concat(singletonList(executable), arguments)));
 
 		if (output != null) {
@@ -105,6 +103,23 @@ public final class Step {
 		}
 
 		return toStringBuilder.toString();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Step)) return false;
+
+		Step that = (Step) o;
+		return Objects.equals(executable, that.executable)
+			&& Objects.equals(arguments, that.arguments)
+			&& Objects.equals(output, that.output)
+			&& Objects.equals(attributes, that.attributes);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(executable, arguments, output, attributes);
 	}
 
 	public static Builder builder() {
