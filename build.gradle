@@ -35,7 +35,7 @@ dependencies {
 	implementation 'org.apache.ant:ant:1.9.13' // For unziping sample
 	implementation 'org.commonmark:commonmark:0.24.0'
 
-	testFixturesApi "org.antlr:antlr4:${antlrVersion}"
+	testFixturesImplementation "org.antlr:antlr4-runtime:${antlrVersion}"
 }
 
 testing {
@@ -60,6 +60,12 @@ testing {
 }
 
 //region Configure Antlr for testFixtures component
+//region Keep the Antlr tool off the main library's classpath (the antlr plugin makes `api` extend `antlr`)
+configurations.named('api') {
+	setExtendsFrom(extendsFrom.findAll { it.name != 'antlr' })
+}
+//endregion
+
 def generateGrammarSource = tasks.named('generateTestFixturesGrammarSource', AntlrTask)
 //region Move output file in appropriate package
 generateGrammarSource.configure { task ->
