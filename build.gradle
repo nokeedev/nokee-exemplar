@@ -17,33 +17,28 @@ java {
 	targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-def guavaVersion = '31.0.1-jre'
-def commonsLangVersion = '3.12.0'
-def commonsIoVersion = '2.11.0'
-def antlrVersion = '4.13.1'
-
 dependencies {
-	antlr "org.antlr:antlr4:${antlrVersion}"
+	antlr libs.antlr4
 
-	implementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
-	runtimeOnly 'org.asciidoctor:asciidoctorj:2.2.0'
-	implementation "commons-io:commons-io:${commonsIoVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation 'org.apache.ant:ant:1.9.13' // For unziping sample
-	implementation 'org.commonmark:commonmark:0.24.0'
+	implementation libs.asciidoctorj.api
+	runtimeOnly libs.asciidoctorj
+	implementation libs.commons.io
+	implementation libs.commons.lang3
+	implementation libs.google.guava
+	implementation libs.apache.ant // For unziping sample
+	implementation libs.commonmark
 
-	testFixturesImplementation "org.antlr:antlr4-runtime:${antlrVersion}"
+	testFixturesImplementation libs.antlr4.runtime
 }
 
 testing {
 	suites {
 		test(JvmTestSuite) {
 			dependencies {
-				implementation "com.google.guava:guava-testlib:${guavaVersion}"
-				implementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.integration"
-				implementation "org.zeroturnaround:zt-zip:1.13"
-				implementation "org.hamcrest:hamcrest:2.2"
+				implementation libs.google.guava.testlib
+				implementation libs.gradle.fixtures.source.elements
+				implementation libs.zt.zip
+				implementation libs.hamcrest
 			}
 
 			targets.all {
