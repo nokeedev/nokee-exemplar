@@ -40,7 +40,7 @@ testing {
 	suites {
 		test(JvmTestSuite) {
 			dependencies {
-				implementation "com.google.guava:guava-testlib:30.0-jre"
+				implementation "com.google.guava:guava-testlib:${guavaVersion}"
 				implementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.integration"
 				implementation "org.zeroturnaround:zt-zip:1.13"
 				implementation "org.hamcrest:hamcrest:2.2"
