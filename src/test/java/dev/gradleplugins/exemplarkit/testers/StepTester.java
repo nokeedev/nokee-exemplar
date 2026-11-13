@@ -18,7 +18,7 @@ package dev.gradleplugins.exemplarkit.testers;
 import dev.gradleplugins.exemplarkit.Step;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

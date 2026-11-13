@@ -12,7 +12,7 @@ asciidoctorj-api = { module = "org.asciidoctor:asciidoctorj-api", version.ref = 
 commons-io = { module = "commons-io:commons-io", version = "2.22.0" }
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.22.0" }
 google-guava = { module = "com.google.guava:guava", version.ref = "guava" }
-google-jsr305 = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
+jspecify = { module = "org.jspecify:jspecify", version = "1.0.1" }
 apache-ant = { module = "org.apache.ant:ant", version = "1.10.18" }
 commonmark = { module = "org.commonmark:commonmark", version = "0.32.0" }
 

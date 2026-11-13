@@ -20,14 +20,14 @@ java {
 dependencies {
 	antlr libs.antlr4
 
+	api libs.jspecify
 	implementation libs.asciidoctorj.api
-	runtimeOnly libs.asciidoctorj
 	implementation libs.commons.io
 	implementation libs.commons.lang3
 	implementation libs.google.guava
-	implementation libs.google.jsr305
 	implementation libs.apache.ant // For unziping sample
 	implementation libs.commonmark
+	runtimeOnly libs.asciidoctorj
 
 	testFixturesImplementation libs.antlr4.runtime
 }
