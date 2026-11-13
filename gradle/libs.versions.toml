@@ -1,21 +1,22 @@
 [versions]
-junit-jupiter = "5.7.0"
-antlr = "4.13.1"
-asciidoctorj = "2.2.0"
-guava = "31.0.1-jre"
+junit-jupiter = "6.1.3"
+antlr = "4.13.2"
+asciidoctorj = "2.5.13"
+guava = "33.8.0-jre"
 
 [libraries]
 antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr" }
 antlr4-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
 asciidoctorj = { module = "org.asciidoctor:asciidoctorj", version.ref = "asciidoctorj" }
 asciidoctorj-api = { module = "org.asciidoctor:asciidoctorj-api", version.ref = "asciidoctorj" }
-commons-io = { module = "commons-io:commons-io", version = "2.11.0" }
-commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.12.0" }
+commons-io = { module = "commons-io:commons-io", version = "2.22.0" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.22.0" }
 google-guava = { module = "com.google.guava:guava", version.ref = "guava" }
-apache-ant = { module = "org.apache.ant:ant", version = "1.9.13" }
-commonmark = { module = "org.commonmark:commonmark", version = "0.24.0" }
+google-jsr305 = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
+apache-ant = { module = "org.apache.ant:ant", version = "1.10.18" }
+commonmark = { module = "org.commonmark:commonmark", version = "0.32.0" }
 
 google-guava-testlib = { module = "com.google.guava:guava-testlib", version.ref = "guava" }
 gradle-fixtures-source-elements = { module = "dev.gradleplugins:gradle-fixtures-source-elements", version = "latest.integration" }
-zt-zip = { module = "org.zeroturnaround:zt-zip", version = "1.13" }
-hamcrest = { module = "org.hamcrest:hamcrest", version = "2.2" }
+zt-zip = { module = "org.zeroturnaround:zt-zip", version = "1.18.3" }
+hamcrest = { module = "org.hamcrest:hamcrest", version = "3.0" }
