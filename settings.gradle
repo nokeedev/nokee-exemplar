@@ -11,5 +11,5 @@ plugins {
 rootProject.name = 'nokee-exemplar'
 
 sourceControlManagement {
-	gitRepository(uri('https://github.com/nokeedev/nokee-source-elements'))
+	gitRepository(uri('https://github.com/nokeedev/nokee-source-elements.git'))
 }
