@@ -16,6 +16,7 @@
 package dev.gradleplugins.exemplarkit.asciidoc;
 
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.ast.*;
 
@@ -23,8 +24,6 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.function.Consumer;
-
-import static org.asciidoctor.OptionsBuilder.options;
 
 public final class AsciidoctorContent {
 	private final ContentNode contentNode;
@@ -39,10 +38,10 @@ public final class AsciidoctorContent {
 
 	public static AsciidoctorContent load(File documentFile, Consumer<OptionsBuilder> action) {
 		try (Asciidoctor asciidoctor = Asciidoctor.Factory.create()) {
-			OptionsBuilder options = options();
+			OptionsBuilder options = Options.builder();
 			action.accept(options);
 
-			Document document = asciidoctor.loadFile(documentFile, options.asMap());
+			Document document = asciidoctor.loadFile(documentFile, options.build());
 			return new AsciidoctorContent(document);
 		}
 	}

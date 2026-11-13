@@ -54,7 +54,7 @@ public final class AsciidoctorExemplarStepExtractor implements ExemplarStepExtra
 	private final Options options;
 
 	public AsciidoctorExemplarStepExtractor() {
-		this(new Options());
+		this(Options.builder().build());
 	}
 
 	public AsciidoctorExemplarStepExtractor(Options options) {
@@ -65,7 +65,7 @@ public final class AsciidoctorExemplarStepExtractor implements ExemplarStepExtra
 	public List<Step> extract(String content) {
 		AsciidoctorContent adocContent = null;
 		try (Asciidoctor asciidoctor = Asciidoctor.Factory.create()) {
-			Document document = asciidoctor.load(content, options.map());
+			Document document = asciidoctor.load(content, options);
 			adocContent = new AsciidoctorContent(document);
 		}
 		Visitor visitor = new Visitor();
