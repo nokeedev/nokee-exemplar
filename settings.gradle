@@ -4,7 +4,12 @@ pluginManagement {
 
 plugins {
 	id 'nokeebuild.develocity'
+	id 'nokeebuild.source-control-management'
 	id 'nokeebuild.repositories' // TODO: We should have repositories for plugins vs lib, this is lib project
 }
 
 rootProject.name = 'commons-exemplar'
+
+sourceControlManagement {
+	gitRepository(uri('https://github.com/nokeedev/nokee-source-elements'))
+}

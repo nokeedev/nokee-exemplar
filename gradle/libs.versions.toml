@@ -17,6 +17,6 @@ apache-ant = { module = "org.apache.ant:ant", version = "1.10.18" }
 commonmark = { module = "org.commonmark:commonmark", version = "0.32.0" }
 
 google-guava-testlib = { module = "com.google.guava:guava-testlib", version.ref = "guava" }
-gradle-fixtures-source-elements = { module = "dev.gradleplugins:gradle-fixtures-source-elements", version = "latest.integration" }
+gradle-fixtures-source-elements = { module = "dev.gradleplugins:gradle-fixtures-source-elements" }
 zt-zip = { module = "org.zeroturnaround:zt-zip", version = "1.18.3" }
 hamcrest = { module = "org.hamcrest:hamcrest", version = "3.0" }
