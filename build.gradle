@@ -9,7 +9,7 @@ plugins {
 	id 'nokeebuild.use-latest-java-lts-in-test-suites'
 }
 
-group = 'dev.gradleplugins.exemplar'
+group = 'dev.nokee.exemplar'
 version = '1.0-SNAPSHOT'
 
 java {
