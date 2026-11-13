@@ -17,15 +17,14 @@ package dev.gradleplugins.exemplarkit;
 
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 
 import static dev.gradleplugins.exemplarkit.StepExecutors.changeDirectory;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 class StepExecutionChangeDirectoryTest {
 	@TempDir
@@ -41,10 +40,8 @@ class StepExecutionChangeDirectoryTest {
 			.currentWorkingDirectory(testDirectory)
 			.forStep(cd("foo"));
 		StepExecutionResult result = changeDirectory().run(context);
-		assertAll((Executable) () -> {
-			assertEquals(StepExecutionOutcome.FAILED, result.getOutcome());
-			assertEquals("Could not canonicalize.", result.getReason().orElse(null));
-		});
+		assertThat(result.getOutcome(), equalTo(StepExecutionOutcome.FAILED));
+		assertThat(result.getReason().orElse(null), equalTo("Could not canonicalize."));
 	}
 
 	private static class ThrowExceptionWhenCanonicalizeFile extends File {

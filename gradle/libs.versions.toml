@@ -20,3 +20,4 @@ google-guava-testlib = { module = "com.google.guava:guava-testlib", version.ref 
 gradle-fixtures-source-elements = { module = "dev.gradleplugins:gradle-fixtures-source-elements" }
 zt-zip = { module = "org.zeroturnaround:zt-zip", version = "1.18.3" }
 hamcrest = { module = "org.hamcrest:hamcrest", version = "3.0" }
+spotify-hamcrest-optional = { module = "com.spotify:hamcrest-optional", version = "1.3.2" }

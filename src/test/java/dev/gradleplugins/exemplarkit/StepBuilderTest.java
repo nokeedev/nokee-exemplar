@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.gradleplugins.exemplarkit.Step.builder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -33,7 +35,7 @@ class StepBuilderTest {
 	@Test
 	void throwsExceptionIfNoExecutableWasSpecified() {
 		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> builder().build());
-		assertEquals("Please specify an executable for this step.", ex.getMessage());
+		assertThat(ex.getMessage(), equalTo("Please specify an executable for this step."));
 	}
 
 	@Nested
@@ -75,11 +77,9 @@ class StepBuilderTest {
 
 		@Test
 		void cannotModifyReturnedArguments() {
-			assertAll(() -> {
-				assertThrows(UnsupportedOperationException.class, () -> step.getArguments().add("foo"));
-				assertThrows(UnsupportedOperationException.class, () -> step.getArguments().clear());
-				assertThrows(UnsupportedOperationException.class, () -> step.getArguments().remove(0));
-			});
+			assertThrows(UnsupportedOperationException.class, () -> step.getArguments().add("foo"));
+			assertThrows(UnsupportedOperationException.class, () -> step.getArguments().clear());
+			assertThrows(UnsupportedOperationException.class, () -> step.getArguments().remove(0));
 		}
 	}
 
@@ -89,22 +89,22 @@ class StepBuilderTest {
 
 		@Test
 		void hasExecutable() {
-			assertEquals(step.getExecutable(), "ls");
+			assertThat(step.getExecutable(), equalTo("ls"));
 		}
 
 		@Test
 		void noOutput() {
-			assertFalse(step.getOutput().isPresent());
+			assertThat(step.getOutput(), emptyOptional());
 		}
 
 		@Test
 		void noAttributes() {
-			assertTrue(step.getAttributes().isEmpty());
+			assertThat(step.getAttributes(), anEmptyMap());
 		}
 
 		@Test
 		void noArguments() {
-			assertTrue(step.getArguments().isEmpty());
+			assertThat(step.getArguments(), empty());
 		}
 	}
 
@@ -113,37 +113,35 @@ class StepBuilderTest {
 		@Test
 		void throwsExceptionWhenExecutableIsNull() {
 			NullPointerException ex = assertThrows(NullPointerException.class, () -> builder().execute(null));
-			assertEquals("Executable cannot be null.", ex.getMessage());
+			assertThat(ex.getMessage(), equalTo("Executable cannot be null."));
 		}
 
 		@Test
 		void throwsExceptionIfAnyArgumentsAreNull() {
-			assertAll(() -> {
-				assertThrows(NullPointerException.class, () -> builder().execute("ls", (String) null));
-				assertThrows(NullPointerException.class, () -> builder().execute("ls", "-l", null));
-			});
+			assertThrows(NullPointerException.class, () -> builder().execute("ls", (String) null));
+			assertThrows(NullPointerException.class, () -> builder().execute("ls", "-l", null));
 
 			NullPointerException ex = assertThrows(NullPointerException.class, () -> builder().execute("list", (String) null));
-			assertEquals("No arguments can be null.", ex.getMessage());
+			assertThat(ex.getMessage(), equalTo("No arguments can be null."));
 		}
 
 		@Test
 		void replaceExecutableAndArgumentsOnMultipleExecuteInvocation() {
 			Step step = builder().execute("ls", "foo").execute("cat", "bar").build();
-			assertEquals("cat", step.getExecutable());
+			assertThat(step.getExecutable(), equalTo("cat"));
 			assertThat(step.getArguments(), contains("bar"));
 		}
 
 		@Test
 		void stripWhitespaceBeforeExecutable() {
 			Step step = builder().execute("  dir").build();
-			assertEquals("dir", step.getExecutable());
+			assertThat(step.getExecutable(), equalTo("dir"));
 		}
 
 		@Test
 		void stripWhitespaceAfterExecutable() {
 			Step step = builder().execute("echo   ").build();
-			assertEquals("echo", step.getExecutable());
+			assertThat(step.getExecutable(), equalTo("echo"));
 		}
 
 		@Test
@@ -159,17 +157,17 @@ class StepBuilderTest {
 
 		@Test
 		void hasExecutable() {
-			assertEquals(step.getExecutable(), "ls");
+			assertThat(step.getExecutable(), equalTo("ls"));
 		}
 
 		@Test
 		void noOutput() {
-			assertFalse(step.getOutput().isPresent());
+			assertThat(step.getOutput(), emptyOptional());
 		}
 
 		@Test
 		void noAttributes() {
-			assertTrue(step.getAttributes().isEmpty());
+			assertThat(step.getAttributes(), anEmptyMap());
 		}
 
 		@Test
@@ -192,8 +190,8 @@ class StepBuilderTest {
 						 "-rwxr-xr-x  1 root  wheel    42272 27 May 20:27 cp");
 			Step step = stepBuilder.output(lines.get(0), lines.get(1), lines.subList(2, lines.size()).toArray(new String[0])).build();
 
-			assertTrue(step.getOutput().isPresent());
-			assertEquals(String.join(System.lineSeparator(), lines), step.getOutput().get());
+			assertThat(step.getOutput(), optionalWithValue());
+			assertThat(step.getOutput().get(), equalTo(String.join(System.lineSeparator(), lines)));
 		}
 
 		@Test
@@ -207,27 +205,25 @@ class StepBuilderTest {
 				rwxr-xr-x  1 root  wheel    36512 27 May 20:27 df""";
 			Step step = stepBuilder.output(output).build();
 
-			assertTrue(step.getOutput().isPresent());
-			assertEquals(output, step.getOutput().get());
+			assertThat(step.getOutput(), optionalWithValue());
+			assertThat(step.getOutput().get(), equalTo(output));
 		}
 
 		@Test
 		void canRemovePreviousOutputByUsingNull() {
 			Step step = stepBuilder.output("foo").output(null).build();
-			assertFalse(step.getOutput().isPresent());
+			assertThat(step.getOutput(), emptyOptional());
 		}
 
 		@Test
 		void throwsAnExceptionIfAnyLinesAreNull() {
-			assertAll(() -> {
-				assertThrows(NullPointerException.class, () -> stepBuilder.output("foo", null));
-				assertThrows(NullPointerException.class, () -> stepBuilder.output(null, "foo"));
-				assertThrows(NullPointerException.class, () -> stepBuilder.output("foo", "bar", (String) null));
-				assertThrows(NullPointerException.class, () -> stepBuilder.output("foo", "bar", "far", null));
-			});
+			assertThrows(NullPointerException.class, () -> stepBuilder.output("foo", null));
+			assertThrows(NullPointerException.class, () -> stepBuilder.output(null, "foo"));
+			assertThrows(NullPointerException.class, () -> stepBuilder.output("foo", "bar", (String) null));
+			assertThrows(NullPointerException.class, () -> stepBuilder.output("foo", "bar", "far", null));
 
 			NullPointerException ex = assertThrows(NullPointerException.class, () -> stepBuilder.output("foo", "bar", (String) null));
-			assertEquals("No output lines can be null.", ex.getMessage());
+			assertThat(ex.getMessage(), equalTo("No output lines can be null."));
 		}
 	}
 
@@ -279,29 +275,29 @@ class StepBuilderTest {
 
 		@Test
 		void executableOnly() {
-			assertEquals("Step{command=ls}", step(it -> it.execute("ls")));
+			assertThat(step(it -> it.execute("ls")), equalTo("Step{command=ls}"));
 		}
 
 		@Test
 		void executableWithArguments() {
-			assertEquals("Step{command=cat /some/file}", step(it -> it.execute("cat", "/some/file")));
+			assertThat(step(it -> it.execute("cat", "/some/file")), equalTo("Step{command=cat /some/file}"));
 		}
 
 		@Test
 		void executableWithMultiLineOutput() {
-			assertEquals("Step{command=./foo, output=foo[...]}", step(it -> it.execute("./foo").output("foo", "bar", "far")));
-			assertEquals("Step{command=./foo, output=foo[...]}", step(it -> it.execute("./foo").output("foo\r\nbar\r\nfar")));
-			assertEquals("Step{command=./foo, output=foo[...]}", step(it -> it.execute("./foo").output("foo\nbar\nfar")));
+			assertThat(step(it -> it.execute("./foo").output("foo", "bar", "far")), equalTo("Step{command=./foo, output=foo[...]}"));
+			assertThat(step(it -> it.execute("./foo").output("foo\r\nbar\r\nfar")), equalTo("Step{command=./foo, output=foo[...]}"));
+			assertThat(step(it -> it.execute("./foo").output("foo\nbar\nfar")), equalTo("Step{command=./foo, output=foo[...]}"));
 		}
 
 		@Test
 		void executableWithSingleLineOutput() {
-			assertEquals("Step{command=./bar, output=bar}", step(it -> it.execute("./bar").output("bar")));
+			assertThat(step(it -> it.execute("./bar").output("bar")), equalTo("Step{command=./bar, output=bar}"));
 		}
 
 		@Test
 		void executableWithAttributes() {
-			assertEquals("Step{command=./far, attributes={k0=v0, k1=v1, k2=v2}}", step(it -> it.execute("./far").attribute("k0", "v0").attribute("k1", "v1").attribute("k2", "v2")));
+			assertThat(step(it -> it.execute("./far").attribute("k0", "v0").attribute("k1", "v1").attribute("k2", "v2")), equalTo("Step{command=./far, attributes={k0=v0, k1=v1, k2=v2}}"));
 		}
 	}
 }

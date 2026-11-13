@@ -26,7 +26,6 @@ import static dev.gradleplugins.exemplarkit.StepExecutors.changeDirectory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StepExecutionChangeDirectoryNonExistentTest {
 	@TempDir
@@ -46,7 +45,7 @@ class StepExecutionChangeDirectoryNonExistentTest {
 
 	@Test
 	void hasExecutedOutcome() {
-		assertEquals(StepExecutionOutcome.EXECUTED, result.getOutcome());
+		assertThat(result.getOutcome(), equalTo(StepExecutionOutcome.EXECUTED));
 	}
 
 	@Test
@@ -56,6 +55,6 @@ class StepExecutionChangeDirectoryNonExistentTest {
 
 	@Test
 	void doesNotChangeCurrentWorkingDirectory() throws IOException {
-		assertEquals(testDirectory.getCanonicalFile(), context.getCurrentWorkingDirectory().getCanonicalFile());
+		assertThat(context.getCurrentWorkingDirectory().getCanonicalFile(), equalTo(testDirectory.getCanonicalFile()));
 	}
 }

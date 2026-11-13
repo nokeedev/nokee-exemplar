@@ -16,7 +16,10 @@
 package dev.gradleplugins.exemplarkit;
 
 import dev.gradleplugins.exemplarkit.fixtures.ExemplarSample;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -28,8 +31,7 @@ import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.equalTo;
 
 class SampleTest {
 	@TempDir
@@ -73,13 +75,13 @@ class SampleTest {
 		File sampleDirectory = writeSampleToDirectory();
 		File exampleDirectory = new File(testDirectory, "example");
 		File archiveFile = new File(testDirectory, "sample.zip");
-		assertEquals(0, new ProcessBuilder("zip", "-r", archiveFile.getAbsolutePath(), "hello").directory(sampleDirectory).start().waitFor());
+		assertThat(new ProcessBuilder("zip", "-r", archiveFile.getAbsolutePath(), "hello").directory(sampleDirectory).start().waitFor(), equalTo(0));
 
 		// when:
 		Sample.fromArchive(archiveFile).writeToDirectory(exampleDirectory);
 
 		// then:
-		assertTrue(new File(exampleDirectory, "hello").canExecute());
+		assertThat(new File(exampleDirectory, "hello"), anExecutableFile());
 	}
 
 	private File writeSampleToDirectory() {
@@ -92,18 +94,36 @@ class SampleTest {
 
 	@Test
 	void emptySampleToString() {
-		assertEquals("Sample.empty()", Sample.empty().toString());
+		assertThat(Sample.empty().toString(), equalTo("Sample.empty()"));
 	}
 
 	@Test
 	void sampleFromDirectoryToString(@TempDir File sampleDirectory) {
-		assertEquals("Sample.fromDirectory(" + sampleDirectory.getAbsolutePath() + ")", Sample.fromDirectory(sampleDirectory).toString());
+		assertThat(Sample.fromDirectory(sampleDirectory).toString(), equalTo("Sample.fromDirectory(" + sampleDirectory.getAbsolutePath() + ")"));
 	}
 
 	@Test
 	void sampleFromArchiveToString(@TempDir File testDirectory) throws IOException {
 		File archiveFile = new File(testDirectory, "bar.zip");
 		archiveFile.createNewFile();
-		assertEquals("Sample.fromArchive(" + archiveFile.getAbsolutePath() + ")", Sample.fromArchive(archiveFile).toString());
+		assertThat(Sample.fromArchive(archiveFile).toString(), equalTo("Sample.fromArchive(" + archiveFile.getAbsolutePath() + ")"));
+	}
+
+	private static Matcher<File> anExecutableFile() {
+		return new TypeSafeDiagnosingMatcher<File>() {
+			@Override
+			protected boolean matchesSafely(File actual, Description mismatchDescription) {
+				if (!actual.canExecute()) {
+					mismatchDescription.appendValue(actual).appendText(" is not executable");
+					return false;
+				}
+				return true;
+			}
+
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("an executable file");
+			}
+		};
 	}
 }

@@ -18,10 +18,10 @@ package dev.gradleplugins.exemplarkit.testers;
 import dev.gradleplugins.exemplarkit.StepExecutionOutcome;
 import org.junit.jupiter.api.Test;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class StepExecutionResultFailingStepTester extends AbstractStepExecutionResultTester {
 	@Test
@@ -31,7 +31,7 @@ public abstract class StepExecutionResultFailingStepTester extends AbstractStepE
 
 	@Test
 	void hasExitValue() {
-		assertTrue(getStepResultUnderTest().getExitValue().isPresent());
+		assertThat(getStepResultUnderTest().getExitValue(), optionalWithValue());
 	}
 
 	@Test

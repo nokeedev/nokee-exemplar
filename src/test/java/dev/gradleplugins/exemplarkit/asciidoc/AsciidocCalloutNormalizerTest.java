@@ -20,63 +20,65 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static dev.gradleplugins.exemplarkit.asciidoc.AsciidocCalloutNormalizer.normalize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 class AsciidocCalloutNormalizerTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"// <1>", "// (2)", "# <3>", "# (4)"})
 	void removesAsciidocCalloutOfSingleLine(String callout) {
-		assertEquals("ls", normalize("ls " + callout));
+		assertThat(normalize("ls " + callout), equalTo("ls"));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"// <5>", "// (6)", "# <7>", "# (8)"})
 	void removesAsciidocCalloutOfMultipleLine(String callout) {
-		assertEquals("""
-			Foo
-			Bar
-			Far
-			""",
+		assertThat(
 			normalize("""
 				Foo
 				Bar %s
 				Far
-				""".formatted(callout)));
+				""".formatted(callout)),
+			equalTo("""
+				Foo
+				Bar
+				Far
+				"""));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"// <9>", "// (1)", "# <2>", "# (3)"})
 	void removesAsciidocCalloutWithTailingWhitespace(String callout) {
-		assertEquals("./gradlew assemble", normalize("./gradlew assemble " + callout + "  "));
+		assertThat(normalize("./gradlew assemble " + callout + "  "), equalTo("./gradlew assemble"));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"  // <4>", "   // (5)", "    # <6>", "     # (7)"})
 	void removesAsciidocCalloutWithoutWhitespaceBetweenTextAnnotation(String callout) {
-		assertEquals("mkdir -p src/main/cpp", normalize("mkdir -p src/main/cpp" + callout));
+		assertThat(normalize("mkdir -p src/main/cpp" + callout), equalTo("mkdir -p src/main/cpp"));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"//<8>", "//(9)", "#<1>", "#(2)"})
 	void removesAsciidocCalloutWithoutWhitespaceBetweenTextAndAnnotationChars(String callout) {
-		assertEquals("unzip -o foo.zip", normalize("unzip -o foo.zip " + callout));
+		assertThat(normalize("unzip -o foo.zip " + callout), equalTo("unzip -o foo.zip"));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"//  <3>", "//   (4)", "#    <5>", "#     (6)"})
 	void removesAsciidocCalloutWithMoreThanOneSpaceBetweenTextAndAnnotationChars(String callout) {
-		assertEquals("tree .", normalize("tree . " + callout));
+		assertThat(normalize("tree . " + callout), equalTo("tree ."));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"// <7>", "//  (8)", " #  <9> ", "  #  (1)  "})
 	void ignoreNonEndingPatternLikeNotAtTheEnd(String callout) {
-		assertEquals("sed -e '{" + callout + "}'", normalize("sed -e '{" + callout + "}'"));
+		assertThat(normalize("sed -e '{" + callout + "}'"), equalTo("sed -e '{" + callout + "}'"));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"// <10>", "// (213)", "# <4563>", "# (98732)"})
 	void removesAsciidocCalloutOfWithMultipleDigits(String callout) {
-		assertEquals("cmd /c msvc.bat", normalize("cmd /c msvc.bat " + callout));
+		assertThat(normalize("cmd /c msvc.bat " + callout), equalTo("cmd /c msvc.bat"));
 	}
 }

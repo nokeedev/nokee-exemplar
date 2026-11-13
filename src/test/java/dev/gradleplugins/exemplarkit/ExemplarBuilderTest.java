@@ -25,7 +25,6 @@ import java.io.IOException;
 import static dev.gradleplugins.exemplarkit.Exemplar.builder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ExemplarBuilderTest {
@@ -75,13 +74,13 @@ class ExemplarBuilderTest {
 		@Test
 		void throwsExceptionForNullStep() {
 			NullPointerException ex = assertThrows(NullPointerException.class, () -> builder().step((Step) null));
-			assertEquals("Step cannot be null.", ex.getMessage());
+			assertThat(ex.getMessage(), equalTo("Step cannot be null."));
 		}
 
 		@Test
 		void throwsExceptionForNullStepBuilder() {
 			NullPointerException ex = assertThrows(NullPointerException.class, () -> builder().step((Step.Builder) null));
-			assertEquals("Step builder cannot be null.", ex.getMessage());
+			assertThat(ex.getMessage(), equalTo("Step builder cannot be null."));
 		}
 	}
 
@@ -89,14 +88,14 @@ class ExemplarBuilderTest {
 	void canSourceSampleFromDirectory(@TempDir File testDirectory) {
 		File sampleDirectory = testDirectory;
 		Exemplar exemplar = builder().fromDirectory(sampleDirectory).build();
-		assertEquals(Sample.fromDirectory(sampleDirectory), exemplar.getSample());
+		assertThat(exemplar.getSample(), equalTo(Sample.fromDirectory(sampleDirectory)));
 	}
 
 	@Test
 	void throwsExceptionIfSampleDirectoryDoesNotExists(@TempDir File testDirectory) {
 		File sampleDirectory = new File(testDirectory, "non-existant");
 		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> builder().fromDirectory(sampleDirectory));
-		assertEquals("Please specify a valid directory because directory '" + testDirectory.getAbsolutePath() + File.separator + "non-existant' does not exists.", ex.getMessage());
+		assertThat(ex.getMessage(), equalTo("Please specify a valid directory because directory '" + testDirectory.getAbsolutePath() + File.separator + "non-existant' does not exists."));
 	}
 
 	@Test
@@ -104,13 +103,13 @@ class ExemplarBuilderTest {
 		File sampleArchive = new File(testDirectory, "foo.zip");
 		sampleArchive.createNewFile();
 		Exemplar exemplar = builder().fromArchive(sampleArchive).build();
-		assertEquals(Sample.fromArchive(sampleArchive), exemplar.getSample());
+		assertThat(exemplar.getSample(), equalTo(Sample.fromArchive(sampleArchive)));
 	}
 
 	@Test
 	void throwsExceptionIfSampleArchiveDoesNotExists(@TempDir File testDirectory) {
 		File sampleArchive = new File(testDirectory, "foo.zip");
 		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> builder().fromArchive(sampleArchive));
-		assertEquals("Please specify a valid archive because archive '" + testDirectory.getAbsolutePath() + File.separator + "foo.zip' does not exists.", ex.getMessage());
+		assertThat(ex.getMessage(), equalTo("Please specify a valid archive because archive '" + testDirectory.getAbsolutePath() + File.separator + "foo.zip' does not exists."));
 	}
 }

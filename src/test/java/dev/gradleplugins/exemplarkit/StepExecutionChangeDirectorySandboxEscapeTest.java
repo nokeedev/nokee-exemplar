@@ -22,7 +22,8 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 
 import static dev.gradleplugins.exemplarkit.StepExecutors.changeDirectory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StepExecutionChangeDirectorySandboxEscapeTest {
@@ -35,10 +36,10 @@ class StepExecutionChangeDirectorySandboxEscapeTest {
 		StepExecutionContext context = new StepExecutionContext(testDirectory).forStep(cd(".."));
 		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
 			StepExecutionResult result = changeDirectory().run(context);
-			assertEquals(StepExecutionOutcome.FAILED, result.getOutcome());
-			assertEquals("Cannot change directory outside of sandbox directory.", result.getReason().orElse(null));
+			assertThat(result.getOutcome(), equalTo(StepExecutionOutcome.FAILED));
+			assertThat(result.getReason().orElse(null), equalTo("Cannot change directory outside of sandbox directory."));
 		});
-		assertEquals("Cannot change directory outside of sandbox directory.", ex.getMessage());
+		assertThat(ex.getMessage(), equalTo("Cannot change directory outside of sandbox directory."));
 	}
 
 	@Test
@@ -46,10 +47,10 @@ class StepExecutionChangeDirectorySandboxEscapeTest {
 		StepExecutionContext context = new StepExecutionContext(testDirectory).forStep(cd(testDirectory.getParent()));
 		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
 			StepExecutionResult result = changeDirectory().run(context);
-			assertEquals(StepExecutionOutcome.FAILED, result.getOutcome());
-			assertEquals("Cannot change directory outside of sandbox directory.", result.getReason().orElse(null));
+			assertThat(result.getOutcome(), equalTo(StepExecutionOutcome.FAILED));
+			assertThat(result.getReason().orElse(null), equalTo("Cannot change directory outside of sandbox directory."));
 		});
-		assertEquals("Cannot change directory outside of sandbox directory.", ex.getMessage());
+		assertThat(ex.getMessage(), equalTo("Cannot change directory outside of sandbox directory."));
 	}
 
 	@Test
@@ -61,7 +62,7 @@ class StepExecutionChangeDirectorySandboxEscapeTest {
 		StepExecutionResult result = changeDirectory().run(context);
 
 		// expect:
-		assertEquals(StepExecutionOutcome.EXECUTED, result.getOutcome());
+		assertThat(result.getOutcome(), equalTo(StepExecutionOutcome.EXECUTED));
 	}
 
 	@Test
@@ -73,6 +74,6 @@ class StepExecutionChangeDirectorySandboxEscapeTest {
 		StepExecutionResult result = changeDirectory().run(context);
 
 		// expect:
-		assertEquals(StepExecutionOutcome.EXECUTED, result.getOutcome());
+		assertThat(result.getOutcome(), equalTo(StepExecutionOutcome.EXECUTED));
 	}
 }

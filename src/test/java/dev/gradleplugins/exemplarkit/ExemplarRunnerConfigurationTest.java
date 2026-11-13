@@ -27,6 +27,8 @@ import static dev.gradleplugins.exemplarkit.ExemplarRunner.create;
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepSkipped;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExemplarRunnerConfigurationTest {
@@ -41,24 +43,24 @@ class ExemplarRunnerConfigurationTest {
 
 		@Test
 		void returnNonNullInstance() {
-			assertNotNull(exemplarRunner);
+			assertThat(exemplarRunner, notNullValue());
 		}
 
 		@Test
 		void canQueryWorkingDirectoryFromRunner() {
-			assertEquals(exemplarRunner.getWorkingDirectory(), aWorkingDirectory);
+			assertThat(exemplarRunner.getWorkingDirectory(), equalTo(aWorkingDirectory));
 		}
 
 		@Test
 		void canOverwriteWorkingDirectory() {
 			File anotherWorkingDirectory = Paths.get("/another/working/directory").toFile();
-			assertEquals(exemplarRunner.inDirectory(anotherWorkingDirectory).getWorkingDirectory(), anotherWorkingDirectory);
+			assertThat(exemplarRunner.inDirectory(anotherWorkingDirectory).getWorkingDirectory(), equalTo(anotherWorkingDirectory));
 		}
 
 		@Test
 		void throwsExceptionIfWorkingDirectoryIsNull() {
 			NullPointerException ex = assertThrows(NullPointerException.class, () -> exemplarRunner.inDirectory(null));
-			assertEquals("Please specify a non-null working directory.", ex.getMessage());
+			assertThat(ex.getMessage(), equalTo("Please specify a non-null working directory."));
 		}
 	}
 
@@ -66,27 +68,27 @@ class ExemplarRunnerConfigurationTest {
 	class ExemplarConfiguration {
 		@Test
 		void returnNonNullInstance() {
-			assertNotNull(create(executor).using(exemplar));
+			assertThat(create(executor).using(exemplar), notNullValue());
 		}
 
 		@Test
 		void throwsExceptionIfExemplarIsNull() {
 			NullPointerException ex = assertThrows(NullPointerException.class, () -> create(executor).using(null));
-			assertEquals("Please specify a non-null exemplar.", ex.getMessage());
+			assertThat(ex.getMessage(), equalTo("Please specify a non-null exemplar."));
 		}
 	}
 
 	@Test
 	void throwsExceptionIfRunningWithoutWorkingDirectory() {
 		InvalidRunnerConfigurationException ex = assertThrows(InvalidRunnerConfigurationException.class, () -> create(executor).using(exemplar).run());
-		assertEquals("Please specify a working directory using ExemplarRunner#inDirectory(File).", ex.getMessage());
+		assertThat(ex.getMessage(), equalTo("Please specify a working directory using ExemplarRunner#inDirectory(File)."));
 		assertThat(defaultStepExecutor.runs, empty());
 	}
 
 	@Test
 	void throwsExceptionIfRunningWithoutExemplar() {
 		InvalidRunnerConfigurationException ex = assertThrows(InvalidRunnerConfigurationException.class, () -> create(executor).inDirectory(aWorkingDirectory).run());
-		assertEquals("Please specify an exemplar using ExemplarRunner#using(Exemplar).", ex.getMessage());
+		assertThat(ex.getMessage(), equalTo("Please specify an exemplar using ExemplarRunner#using(Exemplar)."));
 		assertThat(defaultStepExecutor.runs, empty());
 	}
 

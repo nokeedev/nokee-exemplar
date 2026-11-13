@@ -26,11 +26,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.gradleplugins.exemplarkit.ExemplarExecutor.defaultExecutor;
 import static dev.gradleplugins.exemplarkit.ExemplarRunner.create;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExemplarRunnerTest {
 	@TempDir
@@ -76,7 +76,7 @@ class ExemplarRunnerTest {
 
 		@Test
 		void hasStepOutput() {
-			assertTrue(result.getStepResults().get(0).getOutput().isPresent());
+			assertThat(result.getStepResults().get(0).getOutput(), optionalWithValue());
 			assertThat(result.getStepResults().get(0).getOutput().get(), equalTo("In a galaxy far far away,\nTada, da da ta da ta\nTada da da\n"));
 		}
 
@@ -87,7 +87,7 @@ class ExemplarRunnerTest {
 
 		@Test
 		void hasExitValue() {
-			assertTrue(result.getStepResults().get(0).getExitValue().isPresent());
+			assertThat(result.getStepResults().get(0).getExitValue(), optionalWithValue());
 			assertThat(result.getStepResults().get(0).getExitValue().get(), equalTo(0));
 		}
 	}

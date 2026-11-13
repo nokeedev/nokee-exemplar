@@ -40,6 +40,7 @@ testing {
 				implementation libs.gradle.fixtures.source.elements
 				implementation libs.zt.zip
 				implementation libs.hamcrest
+				implementation libs.spotify.hamcrest.optional
 			}
 		}
 	}
